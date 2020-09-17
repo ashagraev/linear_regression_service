@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -25,10 +26,16 @@ type requestStat struct {
 type handler struct {
 	stats executionStats
 	requestStats chan requestStat
+
+	modelsStorage *ModelsStorage
 }
 
-func (h *handler) init() {
-	h.requestStats = make(chan requestStat)
+func newHandler(ctx context.Context) (*handler, error) {
+	modelsStorage, err := NewModelsStorage(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &handler{requestStats: make(chan requestStat), modelsStorage: modelsStorage}, nil
 }
 
 func (h *handler) updateStatsLoop() {
@@ -74,6 +81,11 @@ func (h*handler) handleStatsRequest(w http.ResponseWriter, _ *http.Request) {
 	reportJSON(h.stats, "stats", w)
 }
 
+func storeModelRequested(r *http.Request) bool {
+	storeNeeded := r.URL.Query().Get("store")
+	return storeNeeded == "1" || storeNeeded == "true"
+}
+
 func (h *handler) handleSolveRequest(w http.ResponseWriter, r *http.Request) {
 	var requestInfo requestStat
 	defer func() {
@@ -110,6 +122,14 @@ func (h *handler) handleSolveRequest(w http.ResponseWriter, r *http.Request) {
 		SumSquaredErrors: slr.SumSquaredErrors(),
 	}
 
+	if storeModelRequested(r) {
+		name, commitTime, err := h.modelsStorage.SaveSLRModel(r.Context(), solveResult.Model)
+		if err != nil {
+			solveResult.Error = fmt.Sprintf("%v", err)
+		}
+		solveResult.Name = name
+		solveResult.CreationTime = commitTime
+	}
 	reportJSON(solveResult, "solution", w)
 
 	requestInfo.success = true
