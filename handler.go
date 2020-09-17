@@ -12,11 +12,16 @@ import (
 	"strconv"
 )
 
-type executionStats struct {
-	succeededRequests int
+// ExecutionStats stores all-time execution statistics for the service.
+type ExecutionStats struct {
+	// SucceededRequests stores the number of successfully processed requests.
+	SucceededRequests int
 
-	totalRequests  int
-	totalInstances int
+	// TotalRequests stores the total number of received requests.
+	TotalRequests  int
+
+	// TotalInstances stores the total number of instances used while learning models.
+	TotalInstances int
 }
 
 type requestStat struct {
@@ -25,7 +30,7 @@ type requestStat struct {
 }
 
 type handler struct {
-	stats executionStats
+	stats        ExecutionStats
 	requestStats chan requestStat
 
 	modelsStorage *ModelsStorage
@@ -43,10 +48,10 @@ func newHandler(ctx context.Context) (*handler, error) {
 
 func (h *handler) updateStatsLoop() {
 	for r := range h.requestStats {
-		h.stats.totalRequests++
-		h.stats.totalInstances += r.instances
+		h.stats.TotalRequests++
+		h.stats.TotalInstances += r.instances
 		if r.success {
-			h.stats.succeededRequests++
+			h.stats.SucceededRequests++
 		}
 	}
 }
