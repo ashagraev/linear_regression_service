@@ -36,7 +36,9 @@ func newHandler(ctx context.Context) (*handler, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &handler{requestStats: make(chan requestStat), modelsStorage: modelsStorage}, nil
+	h := handler{requestStats: make(chan requestStat), modelsStorage: modelsStorage}
+	go h.updateStatsLoop()
+	return &h, nil
 }
 
 func (h *handler) updateStatsLoop() {

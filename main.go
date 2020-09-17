@@ -26,8 +26,6 @@ func main() {
 	http.Handle("/apply", http.HandlerFunc(h.handleApplyRequest))
 	http.Handle("/stats", http.HandlerFunc(h.handleStatsRequest))
 
-	go h.updateStatsLoop()
-
 	err = http.ListenAndServe(":" + *port, nil)
 	if err != nil {
 		log.Fatal("ListenAndServe:", err)
