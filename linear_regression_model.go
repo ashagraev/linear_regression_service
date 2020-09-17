@@ -40,8 +40,11 @@ type ModelValue struct {
 	// Argument stores the given argument value
 	Argument float64
 
-	// ModelName stores the name of the calculated model
-	ModelName string
+	// Model stores the requested model
+	Model *SimpleRegressionModel
+
+	// FromCache reports whether the model was taken from local cache
+	FromCache bool
 
 	// CalculationTime stores the moment of calculation
 	CalculationTime time.Time
@@ -57,7 +60,7 @@ func (srm *SimpleRegressionModel) Evaluate(arg float64) ModelValue {
 	return ModelValue{
 		Value: srm.Apply(arg),
 		Argument: arg,
-		ModelName : srm.Name,
+		Model : srm,
 		CalculationTime: time.Now(),
 	}
 }

@@ -8,10 +8,12 @@ import (
 	"time"
 
 	"cloud.google.com/go/spanner"
+	"github.com/golang/groupcache/lru"
 )
 
 type ModelsStorage struct {
 	spannerClient *spanner.Client
+	modelsCache *lru.Cache
 }
 
 func NewModelsStorage(ctx context.Context) (*ModelsStorage, error) {
@@ -20,7 +22,13 @@ func NewModelsStorage(ctx context.Context) (*ModelsStorage, error) {
 		return nil, fmt.Errorf("spanner.NewClient() error: %v", err)
 	}
 
-	return &ModelsStorage{spannerClient: spannerClient}, nil
+	maxCacheItems := 100
+	if cacheSizeParam := ctx.Value("max-cache"); cacheSizeParam != nil {
+		maxCacheItems = cacheSizeParam.(int)
+	}
+
+	modelsCache := lru.New(maxCacheItems)
+	return &ModelsStorage{spannerClient: spannerClient, modelsCache: modelsCache}, nil
 }
 
 func randomModelName() (string, error) {
@@ -49,21 +57,26 @@ func (ms *ModelsStorage) SaveSLRModel(ctx context.Context, model *SimpleRegressi
 	return name, commitTS, err
 }
 
-func (ms *ModelsStorage) GetSLRModel(ctx context.Context, name string) (*SimpleRegressionModel, error) {
+func (ms *ModelsStorage) GetSLRModel(ctx context.Context, name string) (*SimpleRegressionModel, bool, error) {
+	if modelFromCache, ok := ms.modelsCache.Get(name); ok {
+		return modelFromCache.(*SimpleRegressionModel), true, nil
+	}
+
 	row, err := ms.spannerClient.Single().ReadRow(ctx, "slr_models",
 		spanner.Key{name}, []string{"params"})
 	if err != nil {
-		return nil, fmt.Errorf("error loading model from Spanner: %v", err)
+		return nil, false, fmt.Errorf("error loading model from Spanner: %v", err)
 	}
 	var params []float64
 	if err = row.Columns(&params); err != nil {
-		return nil, fmt.Errorf("error loading parameters from Spanner row: %v", err)
+		return nil, false, fmt.Errorf("error loading parameters from Spanner row: %v", err)
 	}
 
 	model, err := NewSimpleRegressionModel(params, name)
 	if err != nil {
-		return nil, err
+		return nil, false, err
 	}
+	ms.modelsCache.Add(name, model)
 
-	return model, nil
+	return model, false, nil
 }

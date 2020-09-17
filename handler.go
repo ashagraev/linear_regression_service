@@ -112,7 +112,7 @@ func (h* handler) handleApplyRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	model, err := h.modelsStorage.GetSLRModel(r.Context(), modelName)
+	model, fromCache, err := h.modelsStorage.GetSLRModel(r.Context(), modelName)
 	if err != nil {
 		reportFormatError(w, "error loading model %v: %v", modelName, err)
 		return
@@ -125,6 +125,8 @@ func (h* handler) handleApplyRequest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	modelValue := model.Evaluate(arg)
+	modelValue.FromCache = fromCache
+
 	reportJSON(modelValue, modelName, w)
 }
 
