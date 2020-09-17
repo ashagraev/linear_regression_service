@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"strconv"
 )
 
 type executionStats struct {
@@ -84,6 +85,40 @@ func (h*handler) handleStatsRequest(w http.ResponseWriter, _ *http.Request) {
 func storeModelRequested(r *http.Request) bool {
 	storeNeeded := r.URL.Query().Get("store")
 	return storeNeeded == "1" || storeNeeded == "true"
+}
+
+func (h* handler) handleApplyRequest(w http.ResponseWriter, r *http.Request) {
+	var requestInfo requestStat
+	defer func() {
+		h.requestStats <- requestInfo
+	}()
+
+	argStr := r.URL.Query().Get("arg")
+	if len(argStr) == 0 {
+		reportError(w, "arg key is required")
+		return
+	}
+
+	modelName := r.URL.Query().Get("model")
+	if len(modelName) == 0 {
+		reportError(w, "model key is required")
+		return
+	}
+
+	model, err := h.modelsStorage.GetSLRModel(r.Context(), modelName)
+	if err != nil {
+		reportFormatError(w, "error loading model %v: %v", modelName, err)
+		return
+	}
+
+	arg, err := strconv.ParseFloat(argStr, 64)
+	if err != nil {
+		reportFormatError(w, "error converting arg parameter to float: %v", argStr)
+		return
+	}
+
+	modelValue := model.Evaluate(arg)
+	reportJSON(modelValue, modelName, w)
 }
 
 func (h *handler) handleSolveRequest(w http.ResponseWriter, r *http.Request) {

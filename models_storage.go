@@ -32,10 +32,10 @@ func randomModelName() (string, error) {
 	return base64.URLEncoding.EncodeToString(b), err
 }
 
-func (ms *ModelsStorage) SaveSLRModel(ctx context.Context, model *SimpleRegressionModel) (string, *time.Time, error) {
+func (ms *ModelsStorage) SaveSLRModel(ctx context.Context, model *SimpleRegressionModel) (string, time.Time, error) {
 	name, err := randomModelName()
 	if err != nil {
-		return "", nil, err
+		return "", time.Time{}, err
 	}
 
 	commitTS, err := ms.spannerClient.Apply(ctx, []*spanner.Mutation{
@@ -43,8 +43,27 @@ func (ms *ModelsStorage) SaveSLRModel(ctx context.Context, model *SimpleRegressi
 			[]string{"name", "params", "creation_time"},
 			[]interface{}{name, model.ToFloatArray(), spanner.CommitTimestamp})})
 	if err != nil {
-		return "", nil, fmt.Errorf("cannot save model to Spanner: %v", err)
+		return "", time.Time{}, fmt.Errorf("cannot save model to Spanner: %v", err)
 	}
 
-	return name, &commitTS, err
+	return name, commitTS, err
+}
+
+func (ms *ModelsStorage) GetSLRModel(ctx context.Context, name string) (*SimpleRegressionModel, error) {
+	row, err := ms.spannerClient.Single().ReadRow(ctx, "slr_models",
+		spanner.Key{name}, []string{"params"})
+	if err != nil {
+		return nil, fmt.Errorf("error loading model from Spanner: %v", err)
+	}
+	var params []float64
+	if err = row.Columns(&params); err != nil {
+		return nil, fmt.Errorf("error loading parameters from Spanner row: %v", err)
+	}
+
+	model, err := NewSimpleRegressionModel(params, name)
+	if err != nil {
+		return nil, err
+	}
+
+	return model, nil
 }

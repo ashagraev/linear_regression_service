@@ -9,6 +9,7 @@ import (
 	"flag"
 	"log"
 	"net/http"
+	"os"
 )
 
 func main() {
@@ -22,6 +23,7 @@ func main() {
 	}
 
 	http.Handle("/solve", http.HandlerFunc(h.handleSolveRequest))
+	http.Handle("/apply", http.HandlerFunc(h.handleApplyRequest))
 	http.Handle("/stats", http.HandlerFunc(h.handleStatsRequest))
 
 	go h.updateStatsLoop()
