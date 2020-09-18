@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"fmt"
+	"sync"
 	"time"
 
 	"cloud.google.com/go/spanner"
@@ -14,6 +15,8 @@ import (
 type modelsStorage struct {
 	spannerClient *spanner.Client
 	modelsCache *lru.Cache
+
+	mutex sync.Mutex
 }
 
 func newModelsStorage(ctx context.Context) (*modelsStorage, error) {
@@ -57,9 +60,26 @@ func (ms *modelsStorage) saveSLRModel(ctx context.Context, model *SimpleRegressi
 	return name, commitTS, err
 }
 
-func (ms *modelsStorage) getSLRModel(ctx context.Context, name string) (*SimpleRegressionModel, bool, error) {
+func (ms *modelsStorage) safeGetModelFromCache(name string) (*SimpleRegressionModel, bool) {
+	ms.mutex.Lock()
+	defer ms.mutex.Unlock()
+
 	if modelFromCache, ok := ms.modelsCache.Get(name); ok {
-		return modelFromCache.(*SimpleRegressionModel), true, nil
+		return modelFromCache.(*SimpleRegressionModel), true
+	}
+	return nil, false
+}
+
+func (ms *modelsStorage) safeAddModelToCache(name string, model *SimpleRegressionModel) {
+	ms.mutex.Lock()
+	defer ms.mutex.Unlock()
+
+	ms.modelsCache.Add(name, model)
+}
+
+func (ms *modelsStorage) getSLRModel(ctx context.Context, name string) (*SimpleRegressionModel, bool, error) {
+	if modelFromCache, ok := ms.safeGetModelFromCache(name); ok {
+		return modelFromCache, true, nil
 	}
 
 	row, err := ms.spannerClient.Single().ReadRow(ctx, "slr_models",
@@ -76,7 +96,7 @@ func (ms *modelsStorage) getSLRModel(ctx context.Context, name string) (*SimpleR
 	if err != nil {
 		return nil, false, err
 	}
-	ms.modelsCache.Add(name, model)
+	ms.safeAddModelToCache(name, model)
 
 	return model, false, nil
 }
