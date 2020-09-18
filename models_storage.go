@@ -20,7 +20,12 @@ type modelsStorage struct {
 }
 
 func newModelsStorage(ctx context.Context) (*modelsStorage, error) {
-	spannerClient, err := spanner.NewClient(ctx, "projects/thematic-cider-289114/instances/machine-learning/databases/models")
+	project := ctx.Value("project")
+	instance := ctx.Value("instance")
+	database := ctx.Value("database")
+
+	spannerBaseAddress := fmt.Sprintf("projects/%v/instances/%v/databases/%v", project, instance, database)
+	spannerClient, err := spanner.NewClient(ctx, spannerBaseAddress)
 	if err != nil {
 		return nil, fmt.Errorf("spanner.NewClient() error: %v", err)
 	}
