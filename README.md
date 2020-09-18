@@ -6,7 +6,7 @@ A simple linear regression problem states as follows: given two-dimensional samp
 
 ![](https://user-images.githubusercontent.com/6789687/93579011-a5d04a80-f9a6-11ea-975c-1f69443bcf0c.png)
 
-This problem is relatively easy in terms of computation costs. However, numerical errors could potentially lead to unstable and improper results. To deal with that problem, we use Welford's method [2] for calculating means and covariations as well as Kahan's summation algorithm [3].
+This problem is relatively simple in terms of computation costs. However, numerical errors could potentially lead to unstable and improper results. To deal with that problem, we use Welford's method [2] for calculating means and covariations as well as Kahan's summation algorithm [3].
 
 Links:
 1. https://en.wikipedia.org/wiki/Simple_linear_regression
