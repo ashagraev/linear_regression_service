@@ -10,8 +10,6 @@ import (
 )
 
 func main() {
-	os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", "C:\\Users\\alex-\\OneDrive\\Desktop\\google-cloud-key.json")
-
 	if len(os.Args) < 2 {
 		log.Fatal("choose mode: server, train or apply")
 	}
