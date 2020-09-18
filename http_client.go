@@ -12,12 +12,12 @@ import (
 	"strconv"
 )
 
-func NewTrainingHTTPClient() *regressionClient {
-	return NewRegressionClient("train","http","train model")
+func newTrainingHTTPClient() *regressionClient {
+	return newRegressionClient("train","http","train model")
 }
 
-func NewCalculatingHTTPClient() *regressionClient {
-	return NewRegressionClient("apply","http","apply model")
+func newCalculatingHTTPClient() *regressionClient {
+	return newRegressionClient("apply","http","apply model")
 }
 
 func (rc *regressionClient) requestHTTPTraining(instances [][]float64) (string, error) {
@@ -56,7 +56,7 @@ func (rc *regressionClient) requestHTTPCalculation(arg float64) (string, error) 
 }
 
 func runHTTPTrain() {
-	client := NewTrainingHTTPClient()
+	client := newTrainingHTTPClient()
 
 	instances, err := loadInstancesFromTSV(os.Stdin)
 	if err != nil {
@@ -72,7 +72,7 @@ func runHTTPTrain() {
 }
 
 func runHTTPApply() {
-	client := NewCalculatingHTTPClient()
+	client := newCalculatingHTTPClient()
 
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {

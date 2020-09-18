@@ -11,12 +11,12 @@ import (
 	"github.com/golang/groupcache/lru"
 )
 
-type ModelsStorage struct {
+type modelsStorage struct {
 	spannerClient *spanner.Client
 	modelsCache *lru.Cache
 }
 
-func NewModelsStorage(ctx context.Context) (*ModelsStorage, error) {
+func newModelsStorage(ctx context.Context) (*modelsStorage, error) {
 	spannerClient, err := spanner.NewClient(ctx, "projects/thematic-cider-289114/instances/machine-learning/databases/models")
 	if err != nil {
 		return nil, fmt.Errorf("spanner.NewClient() error: %v", err)
@@ -28,7 +28,7 @@ func NewModelsStorage(ctx context.Context) (*ModelsStorage, error) {
 	}
 
 	modelsCache := lru.New(maxCacheItems)
-	return &ModelsStorage{spannerClient: spannerClient, modelsCache: modelsCache}, nil
+	return &modelsStorage{spannerClient: spannerClient, modelsCache: modelsCache}, nil
 }
 
 func randomModelName() (string, error) {
@@ -40,7 +40,7 @@ func randomModelName() (string, error) {
 	return base64.URLEncoding.EncodeToString(b), err
 }
 
-func (ms *ModelsStorage) SaveSLRModel(ctx context.Context, model *SimpleRegressionModel) (string, time.Time, error) {
+func (ms *modelsStorage) saveSLRModel(ctx context.Context, model *SimpleRegressionModel) (string, time.Time, error) {
 	name, err := randomModelName()
 	if err != nil {
 		return "", time.Time{}, err
@@ -57,7 +57,7 @@ func (ms *ModelsStorage) SaveSLRModel(ctx context.Context, model *SimpleRegressi
 	return name, commitTS, err
 }
 
-func (ms *ModelsStorage) GetSLRModel(ctx context.Context, name string) (*SimpleRegressionModel, bool, error) {
+func (ms *modelsStorage) getSLRModel(ctx context.Context, name string) (*SimpleRegressionModel, bool, error) {
 	if modelFromCache, ok := ms.modelsCache.Get(name); ok {
 		return modelFromCache.(*SimpleRegressionModel), true, nil
 	}

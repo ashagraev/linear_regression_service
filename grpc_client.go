@@ -17,12 +17,12 @@ import (
 	pb "regression_service/github.com/ashagraev/linear_regression"
 )
 
-func NewTrainingGRPCClient() *regressionClient {
-	return NewRegressionClient("train","grpc","train model")
+func newTrainingGRPCClient() *regressionClient {
+	return newRegressionClient("train","grpc","train model")
 }
 
-func NewCalculatingGRPCClient() *regressionClient {
-	return NewRegressionClient("apply","grpc","apply model")
+func newCalculatingGRPCClient() *regressionClient {
+	return newRegressionClient("apply","grpc","apply model")
 }
 
 func reportProtoJSON(m proto.Message) (string, error) {
@@ -41,12 +41,16 @@ func reportProtoJSON(m proto.Message) (string, error) {
 	return prettyJson.String(), nil
 }
 
-func (rc *regressionClient) requestGRPCTraining(ctx context.Context, pool *pb.Pool) (string, error) {
+func createConnection(serverPath string) (*grpc.ClientConn, error) {
 	opts := []grpc.DialOption{
 		grpc.WithInsecure(),
 	}
 
-	conn, err := grpc.Dial(rc.serverPath, opts...)
+	return grpc.Dial(serverPath, opts...)
+}
+
+func (rc *regressionClient) requestGRPCTraining(ctx context.Context, pool *pb.Pool) (string, error) {
+	conn, err := createConnection(rc.serverPath)
 	if err != nil {
 		return "", fmt.Errorf("cannot create grpc dial: %v", err)
 	}
@@ -66,11 +70,7 @@ func (rc *regressionClient) requestGRPCTraining(ctx context.Context, pool *pb.Po
 }
 
 func (rc *regressionClient) requestGRPCCalculation(ctx context.Context, arg float64) (string, error) {
-	opts := []grpc.DialOption{
-		grpc.WithInsecure(),
-	}
-
-	conn, err := grpc.Dial(rc.serverPath, opts...)
+	conn, err := createConnection(rc.serverPath)
 	if err != nil {
 		return "", fmt.Errorf("cannot create grpc dial: %v", err)
 	}
@@ -90,7 +90,7 @@ func (rc *regressionClient) requestGRPCCalculation(ctx context.Context, arg floa
 }
 
 func runGRPCTrain() {
-	client := NewTrainingGRPCClient()
+	client := newTrainingGRPCClient()
 
 	pool, err := loadProtoPoolFromTSV(os.Stdin)
 	if err != nil {
@@ -107,7 +107,7 @@ func runGRPCTrain() {
 }
 
 func runGRPCApply() {
-	client := NewCalculatingGRPCClient()
+	client := newCalculatingGRPCClient()
 	ctx := context.Background()
 
 	scanner := bufio.NewScanner(os.Stdin)

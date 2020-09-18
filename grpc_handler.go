@@ -15,11 +15,11 @@ type grpcHandler struct {
 	stats        pb.ServerStats
 	requestStats chan pb.ServerStats
 
-	modelsStorage *ModelsStorage
+	modelsStorage *modelsStorage
 }
 
 func newGRPCHandler(ctx context.Context) (*grpcHandler, error) {
-	modelsStorage, err := NewModelsStorage(ctx)
+	modelsStorage, err := newModelsStorage(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -59,7 +59,7 @@ func (h *grpcHandler) Train(ctx context.Context, request *pb.TrainingRequest) (*
 	}
 
 	if request.StoreModel {
-		name, commitTime, err := h.modelsStorage.SaveSLRModel(ctx, model)
+		name, commitTime, err := h.modelsStorage.saveSLRModel(ctx, model)
 		if err != nil {
 			result.Error = fmt.Sprintf("%v", err)
 		}
@@ -80,7 +80,7 @@ func (h *grpcHandler) Calculate(ctx context.Context, request *pb.CalculateReques
 
 	modelValue := pb.ModelValue{}
 
-	model, fromCache, err := h.modelsStorage.GetSLRModel(ctx, request.ModelName)
+	model, fromCache, err := h.modelsStorage.getSLRModel(ctx, request.ModelName)
 	if err != nil {
 		modelValue.Error = fmt.Sprintf("error loading model %v: %v", request.ModelName, err)
 		return &modelValue, err

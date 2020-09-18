@@ -30,11 +30,11 @@ type httpHandler struct {
 	stats        ExecutionStats
 	requestStats chan ExecutionStats
 
-	modelsStorage *ModelsStorage
+	modelsStorage *modelsStorage
 }
 
 func newHTTPHandler(ctx context.Context) (*httpHandler, error) {
-	modelsStorage, err := NewModelsStorage(ctx)
+	modelsStorage, err := newModelsStorage(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -109,7 +109,7 @@ func (h* httpHandler) handleApplyRequest(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	model, fromCache, err := h.modelsStorage.GetSLRModel(r.Context(), modelName)
+	model, fromCache, err := h.modelsStorage.getSLRModel(r.Context(), modelName)
 	if err != nil {
 		reportFormatError(w, "error loading model %v: %v", modelName, err)
 		return
@@ -168,7 +168,7 @@ func (h *httpHandler) handleTrainingRequest(w http.ResponseWriter, r *http.Reque
 	}
 
 	if storeModelRequested(r) {
-		name, commitTime, err := h.modelsStorage.SaveSLRModel(r.Context(), trainingResults.Model)
+		name, commitTime, err := h.modelsStorage.saveSLRModel(r.Context(), trainingResults.Model)
 		if err != nil {
 			trainingResults.Error = fmt.Sprintf("%v", err)
 		}
