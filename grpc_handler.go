@@ -2,12 +2,11 @@ package main
 
 import (
 	"context"
-	"flag"
 	"fmt"
 	"google.golang.org/grpc"
+	pb "linear_regression_service/github.com/ashagraev/linear_regression"
 	"log"
 	"net"
-	pb "linear_regression_service/github.com/ashagraev/linear_regression"
 	"time"
 )
 
@@ -101,17 +100,18 @@ func (h *grpcHandler) Calculate(ctx context.Context, request *pb.CalculateReques
 }
 
 func runGRPCHandler() {
-	flag.Bool("grpc-server", true, "run the training server")
-	address := flag.String("address", "localhost:80", "grpc handler network address")
-	flag.Parse()
+	ctx, err := handlerContext(grpcMode)
+	if err != nil {
+		log.Fatal("cannot create context: ", err)
+	}
 
-	ctx := context.Background()
 	h, err := newGRPCHandler(ctx)
 	if err != nil {
 		log.Fatal("cannot create handler: ", err)
 	}
 
-	lis, err := net.Listen("tcp", *address)
+	address := ctx.Value("address")
+	lis, err := net.Listen("tcp", address.(string))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}

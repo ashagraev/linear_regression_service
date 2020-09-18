@@ -13,11 +13,11 @@ import (
 )
 
 func newTrainingHTTPClient() *regressionClient {
-	return newRegressionClient("train","http","train model")
+	return newRegressionClient(trainMode, httpMode)
 }
 
 func newCalculatingHTTPClient() *regressionClient {
-	return newRegressionClient("apply","http","apply model")
+	return newRegressionClient(applyMode, httpMode)
 }
 
 func (rc *regressionClient) requestHTTPTraining(instances [][]float64) (string, error) {

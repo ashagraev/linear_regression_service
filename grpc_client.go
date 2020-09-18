@@ -18,11 +18,11 @@ import (
 )
 
 func newTrainingGRPCClient() *regressionClient {
-	return newRegressionClient("train","grpc","train model")
+	return newRegressionClient(trainMode, grpcMode)
 }
 
 func newCalculatingGRPCClient() *regressionClient {
-	return newRegressionClient("apply","grpc","apply model")
+	return newRegressionClient(applyMode, grpcMode)
 }
 
 func reportProtoJSON(m proto.Message) (string, error) {

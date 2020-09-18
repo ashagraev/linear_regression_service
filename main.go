@@ -14,23 +14,23 @@ func main() {
 		log.Fatal("choose mode: server, train or apply")
 	}
 
-	if os.Args[1] == "--http-server" {
+	if os.Args[1] == handlerModeArg(httpMode) {
 		runHTTPHandler()
 	}
-	if os.Args[1] == "--http-train" {
+	if os.Args[1] == clientModeArg(trainMode, httpMode) {
 		runHTTPTrain()
 	}
-	if os.Args[1] == "--http-apply" {
+	if os.Args[1] == clientModeArg(applyMode, httpMode) {
 		runHTTPApply()
 	}
 
-	if os.Args[1] == "--grpc-server" {
+	if os.Args[1] == handlerModeArg(grpcMode) {
 		runGRPCHandler()
 	}
-	if os.Args[1] == "--grpc-train" {
+	if os.Args[1] == clientModeArg(trainMode, grpcMode) {
 		runGRPCTrain()
 	}
-	if os.Args[1] == "--grpc-apply" {
+	if os.Args[1] == clientModeArg(applyMode, grpcMode) {
 		runGRPCApply()
 	}
 }

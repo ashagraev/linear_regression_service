@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"flag"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -181,11 +180,11 @@ func (h *httpHandler) handleTrainingRequest(w http.ResponseWriter, r *http.Reque
 }
 
 func runHTTPHandler() {
-	flag.Bool("http-server", true, "run the regression service")
-	port := flag.String("port", "80", "run the http handler using this port")
-	flag.Parse()
+	ctx, err := handlerContext(httpMode)
+	if err != nil {
+		log.Fatal("cannot create context: ", err)
+	}
 
-	ctx := context.Background()
 	h, err := newHTTPHandler(ctx)
 	if err != nil {
 		log.Fatal("cannot create handler: ", err)
@@ -195,7 +194,8 @@ func runHTTPHandler() {
 	http.Handle("/apply", http.HandlerFunc(h.handleApplyRequest))
 	http.Handle("/stats", http.HandlerFunc(h.handleStatsRequest))
 
-	err = http.ListenAndServe(":" + *port, nil)
+	port := ctx.Value("port")
+	err = http.ListenAndServe(":" + port.(string), nil)
 	if err != nil {
 		log.Fatal("ListenAndServe:", err)
 	}
