@@ -13,7 +13,19 @@ Links:
 2. https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Welford's_online_algorithm
 3. https://en.wikipedia.org/wiki/Kahan_summation_algorithm
 
-## 2. Install dependencies
+## 2. Training, storing and applying models
+
+Models are trained on the server and then stored in the Spanner database, so that in server mode one needs to have the corresponding credentials. Models are calculated on the server, too.
+
+To access the compute server, run the program in one of the client modes:
+- ```---http-apply``` for calculating model values using HTTP calls;
+- ```---http-train``` for training models using HTTP calls;
+- ```---grpc-apply``` for calculating model values using gRPC calls;
+- ```---grpc-train``` for training models using gRPC calls;
+
+See the following sections for details.
+
+## 3. Install dependencies
 
 ```
 sudo apt-get update
@@ -40,7 +52,7 @@ sudo unzip -o protoc-3.7.1-linux-x86_64.zip -d /usr/local bin/protoc
 sudo unzip -o protoc-3.7.1-linux-x86_64.zip -d /usr/local 'include/*'
 ```
 
-## 3. Build the app
+## 4. Build the app
 
 ```
 cd $GOPATH/src
@@ -52,14 +64,14 @@ protoc regression.proto --go-grpc_out=.
 go build .
 ```
 
-## 4. Run the HTTP and gRPC services
+## 5. Run the HTTP and gRPC services
 
 ```
 GOOGLE_APPLICATION_CREDENTIALS=/home/user/token.json ./linear_regression_service --http-server --port 8080
 GOOGLE_APPLICATION_CREDENTIALS=/home/user/token.json ./linear_regression_service --grpc-server --address localhost:8081
 ```
 
-## 5. Train and apply the model via HTTP API
+## 6. Train and apply the model via HTTP API
 
 ```
 ./linear_regression_service --http-train --server http://localhost:8080 < ./sample_instances.tsv
@@ -100,7 +112,7 @@ GOOGLE_APPLICATION_CREDENTIALS=/home/user/token.json ./linear_regression_service
 }
 ```
 
-## 6. Train and apply the model via gRPC API
+## 7. Train and apply the model via gRPC API
 
 ```
 ./linear_regression_service --grpc-train --server localhost:8081 < ./sample_instances.tsv
