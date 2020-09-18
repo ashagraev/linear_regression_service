@@ -14,8 +14,8 @@ type SimpleRegressionModel struct {
 	Intercept float64
 }
 
-// Solution stores simple linear regression solution information
-type Solution struct {
+// TrainingResults stores the results of simple linear regression model training.
+type TrainingResults struct {
 	// Model is a simple regression model which fits the training data best.
 	Model *SimpleRegressionModel
 

@@ -129,7 +129,7 @@ func (h* httpHandler) handleApplyRequest(w http.ResponseWriter, r *http.Request)
 	reportJSON(modelValue, modelName, w)
 }
 
-func (h *httpHandler) handleSolveRequest(w http.ResponseWriter, r *http.Request) {
+func (h *httpHandler) handleTrainingRequest(w http.ResponseWriter, r *http.Request) {
 	requestInfo := ExecutionStats{
 		TotalRequests: 1,
 	}
@@ -162,27 +162,27 @@ func (h *httpHandler) handleSolveRequest(w http.ResponseWriter, r *http.Request)
 		}
 	}
 
-	solveResult := Solution{
-		Model: slr.Solve(),
+	trainingResults := TrainingResults{
+		Model: slr.Train(),
 		SumSquaredErrors: slr.SumSquaredErrors(),
 	}
 
 	if storeModelRequested(r) {
-		name, commitTime, err := h.modelsStorage.SaveSLRModel(r.Context(), solveResult.Model)
+		name, commitTime, err := h.modelsStorage.SaveSLRModel(r.Context(), trainingResults.Model)
 		if err != nil {
-			solveResult.Error = fmt.Sprintf("%v", err)
+			trainingResults.Error = fmt.Sprintf("%v", err)
 		}
-		solveResult.Name = name
-		solveResult.CreationTime = commitTime
+		trainingResults.Name = name
+		trainingResults.CreationTime = commitTime
 	}
-	reportJSON(solveResult, "solution", w)
+	reportJSON(trainingResults, "training results", w)
 
 	requestInfo.SucceededRequests = 1
 }
 
 func runHTTPHandler() {
-	flag.Bool("http-server", true, "run the solving server")
-	port := flag.String("port", "80", "run http handler using this port")
+	flag.Bool("http-server", true, "run the regression service")
+	port := flag.String("port", "80", "run the http handler using this port")
 	flag.Parse()
 
 	ctx := context.Background()
@@ -191,7 +191,7 @@ func runHTTPHandler() {
 		log.Fatal("cannot create handler: ", err)
 	}
 
-	http.Handle("/solve", http.HandlerFunc(h.handleSolveRequest))
+	http.Handle("/train", http.HandlerFunc(h.handleTrainingRequest))
 	http.Handle("/apply", http.HandlerFunc(h.handleApplyRequest))
 	http.Handle("/stats", http.HandlerFunc(h.handleStatsRequest))
 

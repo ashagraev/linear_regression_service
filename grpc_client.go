@@ -52,9 +52,9 @@ func (rc *regressionClient) requestGRPCTraining(ctx context.Context, pool *pb.Po
 	}
 	defer conn.Close()
 
-	client := pb.NewRegressionSolverClient(conn)
+	client := pb.NewRegressionClient(conn)
 
-	solution, err := client.Solve(ctx, &pb.SolveRequest{
+	result, err := client.Train(ctx, &pb.TrainingRequest{
 		Data:       pool,
 		StoreModel: true,
 	})
@@ -62,7 +62,7 @@ func (rc *regressionClient) requestGRPCTraining(ctx context.Context, pool *pb.Po
 		return "", fmt.Errorf("error processing training request: %v", err)
 	}
 
-	return reportProtoJSON(solution)
+	return reportProtoJSON(result)
 }
 
 func (rc *regressionClient) requestGRPCCalculation(ctx context.Context, arg float64) (string, error) {
@@ -76,7 +76,7 @@ func (rc *regressionClient) requestGRPCCalculation(ctx context.Context, arg floa
 	}
 	defer conn.Close()
 
-	client := pb.NewRegressionSolverClient(conn)
+	client := pb.NewRegressionClient(conn)
 
 	modelValue, err := client.Calculate(ctx, &pb.CalculateRequest{
 		Argument: arg,

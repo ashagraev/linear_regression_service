@@ -1,6 +1,6 @@
 package main
 
-// SimpleLinearRegression provides interface for solving simple linear regression problems
+// SimpleLinearRegression provides interface for training simple linear regression models
 // https://en.wikipedia.org/wiki/Simple_linear_regression
 type SimpleLinearRegression struct {
 	sumWeights KahanAdder
@@ -38,8 +38,8 @@ func (slr *SimpleLinearRegression) AddWeightedInstance(feature float64, target f
 	slr.covariance += wfd * (target - slr.targetMean)
 }
 
-// Solve() builds a regression model according to the collected training data.
-func (slr *SimpleLinearRegression) Solve() *SimpleRegressionModel {
+// Train() builds a regression model according to the collected training data.
+func (slr *SimpleLinearRegression) Train() *SimpleRegressionModel {
 	if slr.featureDev == 0 {
 		return &SimpleRegressionModel{Coefficient: 0, Intercept: slr.targetMean}
 	}
@@ -51,6 +51,6 @@ func (slr *SimpleLinearRegression) Solve() *SimpleRegressionModel {
 
 // SumSquaredErrors() returns sum of squared errors on training data for the resulting model
 func (slr* SimpleLinearRegression) SumSquaredErrors() float64 {
-	srm := slr.Solve()
+	srm := slr.Train()
 	return srm.Coefficient * srm.Coefficient * slr.featureDev - 2 * srm.Coefficient * slr.covariance + slr.targetDev
 }

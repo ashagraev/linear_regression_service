@@ -27,14 +27,14 @@ func (rc *regressionClient) requestHTTPTraining(instances [][]float64) (string, 
 	}
 
 	dataReader := bytes.NewReader(data)
-	resp, err := http.Post(rc.serverPath + "/solve?store=1", "application/json", dataReader)
+	resp, err := http.Post(rc.serverPath + "/train?store=1", "application/json", dataReader)
 	if err != nil {
-		return "", fmt.Errorf("error processing /solve: %v", err)
+		return "", fmt.Errorf("error processing /train: %v", err)
 	}
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return "", fmt.Errorf("can't load /solve answer: %v", err)
+		return "", fmt.Errorf("can't load /train answer: %v", err)
 	}
 
 	return string(body), nil

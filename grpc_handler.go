@@ -28,9 +28,9 @@ func newGRPCHandler(ctx context.Context) (*grpcHandler, error) {
 	return &h, nil
 }
 
-func (h *grpcHandler) Svc() *pb.RegressionSolverService {
-	return &pb.RegressionSolverService{
-		Solve: h.Solve,
+func (h *grpcHandler) Svc() *pb.RegressionService {
+	return &pb.RegressionService{
+		Train: h.Train,
 		Calculate: h.Calculate,
 	}
 }
@@ -43,14 +43,14 @@ func (h *grpcHandler) updateStatsLoop() {
 	}
 }
 
-func (h *grpcHandler) Solve(ctx context.Context, request *pb.SolveRequest) (*pb.Solution, error) {
+func (h *grpcHandler) Train(ctx context.Context, request *pb.TrainingRequest) (*pb.TrainingResults, error) {
 	var slr SimpleLinearRegression
 	for _, instance := range request.Data.Instances {
 		slr.AddWeightedInstance(instance.Argument, instance.Target, instance.Weight)
 	}
 
-	model := slr.Solve()
-	solution := pb.Solution{
+	model := slr.Train()
+	result := pb.TrainingResults{
 		Model: &pb.SimpleRegressionModel{
 			Coefficient: model.Coefficient,
 			Intercept: model.Intercept,
@@ -61,13 +61,13 @@ func (h *grpcHandler) Solve(ctx context.Context, request *pb.SolveRequest) (*pb.
 	if request.StoreModel {
 		name, commitTime, err := h.modelsStorage.SaveSLRModel(ctx, model)
 		if err != nil {
-			solution.Error = fmt.Sprintf("%v", err)
+			result.Error = fmt.Sprintf("%v", err)
 		}
-		solution.Name = name
-		solution.CreationTime = fmt.Sprintf("%v", commitTime)
+		result.Name = name
+		result.CreationTime = fmt.Sprintf("%v", commitTime)
 	}
 
-	return &solution, nil
+	return &result, nil
 }
 
 func (h *grpcHandler) Calculate(ctx context.Context, request *pb.CalculateRequest) (*pb.ModelValue, error) {
@@ -101,7 +101,7 @@ func (h *grpcHandler) Calculate(ctx context.Context, request *pb.CalculateReques
 }
 
 func runGRPCHandler() {
-	flag.Bool("grpc-server", true, "run the solving server")
+	flag.Bool("grpc-server", true, "run the training server")
 	address := flag.String("address", "localhost:80", "grpc handler network address")
 	flag.Parse()
 
@@ -117,6 +117,6 @@ func runGRPCHandler() {
 	}
 
 	grpcServer := grpc.NewServer()
-	pb.RegisterRegressionSolverService(grpcServer, h.Svc())
+	pb.RegisterRegressionService(grpcServer, h.Svc())
 	grpcServer.Serve(lis)
 }

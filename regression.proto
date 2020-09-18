@@ -20,7 +20,7 @@ message SimpleRegressionModel {
   double Intercept = 3;
 }
 
-message Solution {
+message TrainingResults {
   SimpleRegressionModel Model = 1;
   double SumSquaredErrors = 2;
   string Name = 3;
@@ -41,7 +41,7 @@ message ModelValue {
   string Error = 6;
 }
 
-message SolveRequest {
+message TrainingRequest {
   Pool Data = 1;
   bool StoreModel = 2;
 }
@@ -57,7 +57,7 @@ message ServerStats {
   int32 TotalInstances = 3;
 }
 
-service RegressionSolver {
-  rpc Solve(SolveRequest) returns (Solution) {}
+service Regression {
+  rpc Train(TrainingRequest) returns (TrainingResults) {}
   rpc Calculate(CalculateRequest) returns (ModelValue) {}
 }

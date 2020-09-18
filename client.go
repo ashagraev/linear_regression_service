@@ -9,7 +9,7 @@ type regressionClient struct {
 
 func NewRegressionClient(mode string, protocol string, usage string) *regressionClient {
 	flag.Bool(protocol + "-" + mode, true, usage)
-	var server = flag.String("server", "", "network path of the solving server")
+	var server = flag.String("server", "", "network path of the training server")
 	var model = flag.String("model", "", "model name for calculation")
 	flag.Parse()
 
