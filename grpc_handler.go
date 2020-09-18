@@ -7,7 +7,7 @@ import (
 	"google.golang.org/grpc"
 	"log"
 	"net"
-	pb "regression_service/github.com/ashagraev/linear_regression"
+	pb "linear_regression_service/github.com/ashagraev/linear_regression"
 	"time"
 )
 

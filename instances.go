@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	pb "regression_service/github.com/ashagraev/linear_regression"
+	pb "linear_regression_service/github.com/ashagraev/linear_regression"
 )
 
 func loadInstancesFromTSV(reader io.Reader) ([][]float64, error){

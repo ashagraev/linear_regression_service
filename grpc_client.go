@@ -14,7 +14,7 @@ import (
 	"google.golang.org/grpc"
 	"github.com/golang/protobuf/jsonpb"
 
-	pb "regression_service/github.com/ashagraev/linear_regression"
+	pb "linear_regression_service/github.com/ashagraev/linear_regression"
 )
 
 func newTrainingGRPCClient() *regressionClient {
