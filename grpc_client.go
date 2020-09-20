@@ -30,7 +30,9 @@ func newStatsGRPCClient() *regressionClient {
 }
 
 func reportProtoJSON(m proto.Message) (string, error) {
-	marshaler := jsonpb.Marshaler{}
+	marshaler := jsonpb.Marshaler{
+		EmitDefaults: true,
+	}
 
 	simpleJSON, err := marshaler.MarshalToString(m)
 	if err != nil {
