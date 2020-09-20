@@ -48,13 +48,13 @@ func handlerContext(mode protocolMode) (context.Context, error) {
 	flag.Parse()
 
 	if len(*project) == 0 {
-		return nil, errors.New("choose the spanner project (--project)")
+		return nil, errors.New("choose the spanner project (--spanner-project)")
 	}
 	if len(*instance) == 0 {
-		return nil, errors.New("choose the spanner instance (--instance)")
+		return nil, errors.New("choose the spanner instance (--spanner-instance)")
 	}
 	if len(*database) == 0 {
-		return nil, errors.New("choose the spanner database (--database)")
+		return nil, errors.New("choose the spanner database (--spanner-database)")
 	}
 
 	ctx := context.Background()
