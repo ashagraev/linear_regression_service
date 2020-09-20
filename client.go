@@ -15,6 +15,7 @@ type operationMode int
 const (
 	applyMode operationMode = iota
 	trainMode
+	statsMode
 )
 
 func clientMode(operation operationMode, protocol protocolMode) string {
@@ -22,6 +23,7 @@ func clientMode(operation operationMode, protocol protocolMode) string {
 	switch operation {
 	case applyMode: operationStr = "apply"
 	case trainMode: operationStr = "train"
+	case statsMode: operationStr = "stats"
 	}
 	return protocolPrefix(protocol) + "-" + operationStr
 }
@@ -34,6 +36,7 @@ func clientUsage(operation operationMode) string {
 	switch operation {
 	case applyMode: return "apply model"
 	case trainMode: return "train model"
+	case statsMode: return "collect service execution stats"
 	}
 	log.Fatalf("unknown operation mode: %v", operation)
 	return ""

@@ -31,6 +31,7 @@ func (h *grpcHandler) Svc() *pb.RegressionService {
 	return &pb.RegressionService{
 		Train: h.Train,
 		Calculate: h.Calculate,
+		Stats: h.Stats,
 	}
 }
 
@@ -97,6 +98,10 @@ func (h *grpcHandler) Calculate(ctx context.Context, request *pb.CalculateReques
 	requestInfo.SucceededRequests = 1
 
 	return &modelValue, nil
+}
+
+func (h *grpcHandler) Stats(_ context.Context, _ *pb.StatsRequest) (*pb.ServerStats, error) {
+	return &h.stats, nil
 }
 
 func runGRPCHandler() {

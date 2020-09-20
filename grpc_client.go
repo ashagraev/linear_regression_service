@@ -25,6 +25,10 @@ func newCalculatingGRPCClient() *regressionClient {
 	return newRegressionClient(applyMode, grpcMode)
 }
 
+func newStatsGRPCClient() *regressionClient {
+	return newRegressionClient(statsMode, grpcMode)
+}
+
 func reportProtoJSON(m proto.Message) (string, error) {
 	marshaler := jsonpb.Marshaler{}
 
@@ -89,6 +93,22 @@ func (rc *regressionClient) requestGRPCCalculation(ctx context.Context, arg floa
 	return reportProtoJSON(modelValue)
 }
 
+func (rc *regressionClient) requestGRPCStats(ctx context.Context) (string, error) {
+	conn, err := createConnection(rc.serverPath)
+	if err != nil {
+		return "", fmt.Errorf("cannot create grpc dial: %v", err)
+	}
+	defer conn.Close()
+
+	client := pb.NewRegressionClient(conn)
+	stats, err := client.Stats(ctx, &pb.StatsRequest{})
+	if err != nil {
+		return "", fmt.Errorf("error processing stats request: %v", err)
+	}
+
+	return reportProtoJSON(stats)
+}
+
 func runGRPCTrain() {
 	client := newTrainingGRPCClient()
 
@@ -125,4 +145,16 @@ func runGRPCApply() {
 
 		fmt.Println(result)
 	}
+}
+
+func runGRPCStats() {
+	client := newStatsGRPCClient()
+	ctx := context.Background()
+
+	result, err := client.requestGRPCStats(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println(result)
 }

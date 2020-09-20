@@ -33,4 +33,7 @@ func main() {
 	if os.Args[1] == clientModeArg(applyMode, grpcMode) {
 		runGRPCApply()
 	}
+	if os.Args[1] == clientModeArg(statsMode, grpcMode) {
+		runGRPCStats()
+	}
 }
