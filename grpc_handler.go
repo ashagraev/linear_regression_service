@@ -7,12 +7,15 @@ import (
 	pb "linear_regression_service/github.com/ashagraev/linear_regression"
 	"log"
 	"net"
+	"sync"
 	"time"
 )
 
 type grpcHandler struct {
 	stats        pb.ServerStats
 	requestStats chan pb.ServerStats
+
+	statsMutex sync.Mutex
 
 	modelsStorage *modelsStorage
 }
@@ -27,6 +30,20 @@ func newGRPCHandler(ctx context.Context) (*grpcHandler, error) {
 	return &h, nil
 }
 
+func (h* grpcHandler) getStats() pb.ServerStats {
+	h.statsMutex.Lock()
+	defer h.statsMutex.Unlock()
+
+	return h.stats
+}
+
+func (h* grpcHandler) setStats(stats pb.ServerStats) {
+	h.statsMutex.Lock()
+	defer h.statsMutex.Unlock()
+
+	h.stats = stats
+}
+
 func (h *grpcHandler) Svc() *pb.RegressionService {
 	return &pb.RegressionService{
 		Train: h.Train,
@@ -37,9 +54,11 @@ func (h *grpcHandler) Svc() *pb.RegressionService {
 
 func (h *grpcHandler) updateStatsLoop() {
 	for r := range h.requestStats {
-		h.stats.TotalRequests += r.TotalRequests
-		h.stats.TotalInstances += r.TotalInstances
-		h.stats.SucceededRequests += r.SucceededRequests
+		stats := h.getStats()
+		stats.TotalRequests += r.TotalRequests
+		stats.TotalInstances += r.TotalInstances
+		stats.SucceededRequests += r.SucceededRequests
+		h.setStats(stats)
 	}
 }
 
@@ -101,7 +120,8 @@ func (h *grpcHandler) Calculate(ctx context.Context, request *pb.CalculateReques
 }
 
 func (h *grpcHandler) Stats(_ context.Context, _ *pb.StatsRequest) (*pb.ServerStats, error) {
-	return &h.stats, nil
+	stats := h.getStats()
+	return &stats, nil
 }
 
 func runGRPCHandler() {

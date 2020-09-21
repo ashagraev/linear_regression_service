@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"sync"
 	"time"
 )
 
@@ -30,6 +31,8 @@ type httpHandler struct {
 	stats        ExecutionStats
 	requestStats chan ExecutionStats
 
+	statsMutex sync.Mutex
+
 	modelsStorage *modelsStorage
 }
 
@@ -43,11 +46,27 @@ func newHTTPHandler(ctx context.Context) (*httpHandler, error) {
 	return &h, nil
 }
 
+func (h* httpHandler) getStats() ExecutionStats {
+	h.statsMutex.Lock()
+	defer h.statsMutex.Unlock()
+
+	return h.stats
+}
+
+func (h* httpHandler) setStats(stats ExecutionStats) {
+	h.statsMutex.Lock()
+	defer h.statsMutex.Unlock()
+
+	h.stats = stats
+}
+
 func (h *httpHandler) updateStatsLoop() {
 	for r := range h.requestStats {
-		h.stats.TotalRequests += r.TotalRequests
-		h.stats.TotalInstances += r.TotalInstances
-		h.stats.SucceededRequests += r.SucceededRequests
+		stats := h.getStats()
+		stats.TotalRequests += r.TotalRequests
+		stats.TotalInstances += r.TotalInstances
+		stats.SucceededRequests += r.SucceededRequests
+		h.setStats(stats)
 	}
 }
 
@@ -81,7 +100,7 @@ func reportJSON(value interface{}, name string, w http.ResponseWriter) {
 }
 
 func (h *httpHandler) handleStatsRequest(w http.ResponseWriter, _ *http.Request) {
-	reportJSON(h.stats, "stats", w)
+	reportJSON(h.getStats(), "stats", w)
 }
 
 func storeModelRequested(r *http.Request) bool {
