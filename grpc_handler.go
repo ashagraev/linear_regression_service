@@ -88,7 +88,7 @@ func (h *grpcHandler) Calculate(ctx context.Context, request *pb.CalculateReques
 
 	modelValue.Argument = request.Argument
 	modelValue.FromCache = fromCache
-	modelValue.Value = model.Apply(request.Argument)
+	modelValue.Value = model.Calculate(request.Argument)
 	modelValue.CalculationTime = fmt.Sprintf("%v", time.Now())
 	modelValue.Model = &pb.SimpleRegressionModel{
 		Name:        model.Name,

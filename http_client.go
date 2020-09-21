@@ -17,7 +17,7 @@ func newTrainingHTTPClient() *regressionClient {
 }
 
 func newCalculatingHTTPClient() *regressionClient {
-	return newRegressionClient(applyMode, httpMode)
+	return newRegressionClient(calculateMode, httpMode)
 }
 
 func newStatsHTTPClient() *regressionClient {
@@ -45,15 +45,15 @@ func (rc *regressionClient) requestHTTPTraining(instances [][]float64) (string, 
 }
 
 func (rc *regressionClient) requestHTTPCalculation(arg float64) (string, error) {
-	url := fmt.Sprintf("%v/apply?model=%v&arg=%v", rc.serverPath, rc.modelName, arg)
+	url := fmt.Sprintf("%v/calc?model=%v&arg=%v", rc.serverPath, rc.modelName, arg)
 	resp, err := http.Get(url)
 	if err != nil {
-		return "", fmt.Errorf("error processing /apply: %v", err)
+		return "", fmt.Errorf("error processing /calc: %v", err)
 	}
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return "", fmt.Errorf("can't load /apply answer: %v", err)
+		return "", fmt.Errorf("can't load /calc answer: %v", err)
 	}
 
 	return string(body), nil
@@ -74,7 +74,7 @@ func (rc *regressionClient) requestHTTPStats() (string, error) {
 	return string(body), nil
 }
 
-func runHTTPTrain() {
+func runHTTPTraining() {
 	client := newTrainingHTTPClient()
 
 	instances, err := loadInstancesFromTSV(os.Stdin)
@@ -90,7 +90,7 @@ func runHTTPTrain() {
 	fmt.Println(result)
 }
 
-func runHTTPApply() {
+func runHTTPCalculation() {
 	client := newCalculatingHTTPClient()
 
 	scanner := bufio.NewScanner(os.Stdin)

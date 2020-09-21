@@ -50,19 +50,9 @@ type ModelValue struct {
 	CalculationTime time.Time
 }
 
-// Apply() returns the result of applying the model to an argument.
-func (srm *SimpleRegressionModel) Apply(arg float64) float64 {
+// Calculate() returns the model value for the given argument.
+func (srm *SimpleRegressionModel) Calculate(arg float64) float64 {
 	return srm.Coefficient * arg + srm.Intercept
-}
-
-// Apply() returns the result of applying the model to an argument.
-func (srm *SimpleRegressionModel) Evaluate(arg float64) ModelValue {
-	return ModelValue{
-		Value: srm.Apply(arg),
-		Argument: arg,
-		Model : srm,
-		CalculationTime: time.Now(),
-	}
 }
 
 // ToFloatArray() converts a simple regression model to an array of float parameters.

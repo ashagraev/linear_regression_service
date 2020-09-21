@@ -13,7 +13,7 @@ type regressionClient struct {
 type operationMode int
 
 const (
-	applyMode operationMode = iota
+	calculateMode operationMode = iota
 	trainMode
 	statsMode
 )
@@ -21,7 +21,7 @@ const (
 func clientMode(operation operationMode, protocol protocolMode) string {
 	operationStr := ""
 	switch operation {
-	case applyMode: operationStr = "apply"
+	case calculateMode: operationStr = "calc"
 	case trainMode: operationStr = "train"
 	case statsMode: operationStr = "stats"
 	}
@@ -34,7 +34,7 @@ func clientModeArg(operation operationMode, protocol protocolMode) string {
 
 func clientUsage(operation operationMode) string {
 	switch operation {
-	case applyMode: return "apply model"
+	case calculateMode: return "calculate model value"
 	case trainMode: return "train model"
 	case statsMode: return "collect service execution stats"
 	}

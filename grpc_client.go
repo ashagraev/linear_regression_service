@@ -22,7 +22,7 @@ func newTrainingGRPCClient() *regressionClient {
 }
 
 func newCalculatingGRPCClient() *regressionClient {
-	return newRegressionClient(applyMode, grpcMode)
+	return newRegressionClient(calculateMode, grpcMode)
 }
 
 func newStatsGRPCClient() *regressionClient {
@@ -111,7 +111,7 @@ func (rc *regressionClient) requestGRPCStats(ctx context.Context) (string, error
 	return reportProtoJSON(stats)
 }
 
-func runGRPCTrain() {
+func runGRPCTraining() {
 	client := newTrainingGRPCClient()
 
 	instances, err := loadProtoInstancesFromTSV(os.Stdin)
@@ -128,7 +128,7 @@ func runGRPCTrain() {
 	fmt.Println(result)
 }
 
-func runGRPCApply() {
+func runGRPCCalculation() {
 	client := newCalculatingGRPCClient()
 	ctx := context.Background()
 

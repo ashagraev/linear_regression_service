@@ -11,17 +11,17 @@ import (
 
 func main() {
 	if len(os.Args) < 2 {
-		log.Fatal("choose mode: server, train or apply")
+		log.Fatal("choose mode: server, train or calc")
 	}
 
 	if os.Args[1] == handlerModeArg(httpMode) {
 		runHTTPHandler()
 	}
 	if os.Args[1] == clientModeArg(trainMode, httpMode) {
-		runHTTPTrain()
+		runHTTPTraining()
 	}
-	if os.Args[1] == clientModeArg(applyMode, httpMode) {
-		runHTTPApply()
+	if os.Args[1] == clientModeArg(calculateMode, httpMode) {
+		runHTTPCalculation()
 	}
 	if os.Args[1] == clientModeArg(statsMode, httpMode) {
 		runHTTPStats()
@@ -31,10 +31,10 @@ func main() {
 		runGRPCHandler()
 	}
 	if os.Args[1] == clientModeArg(trainMode, grpcMode) {
-		runGRPCTrain()
+		runGRPCTraining()
 	}
-	if os.Args[1] == clientModeArg(applyMode, grpcMode) {
-		runGRPCApply()
+	if os.Args[1] == clientModeArg(calculateMode, grpcMode) {
+		runGRPCCalculation()
 	}
 	if os.Args[1] == clientModeArg(statsMode, grpcMode) {
 		runGRPCStats()

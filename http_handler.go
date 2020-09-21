@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"time"
 )
 
 // ExecutionStats stores all-time execution statistics for the service.
@@ -88,7 +89,7 @@ func storeModelRequested(r *http.Request) bool {
 	return storeNeeded == "1" || storeNeeded == "true"
 }
 
-func (h* httpHandler) handleApplyRequest(w http.ResponseWriter, r *http.Request) {
+func (h* httpHandler) handleCalculationRequest(w http.ResponseWriter, r *http.Request) {
 	requestInfo := ExecutionStats{
 		TotalRequests: 1,
 	}
@@ -120,9 +121,13 @@ func (h* httpHandler) handleApplyRequest(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	modelValue := model.Evaluate(arg)
-	modelValue.FromCache = fromCache
-
+	modelValue := ModelValue{
+		Value:           model.Calculate(arg),
+		Argument:        arg,
+		Model:           model,
+		CalculationTime: time.Now(),
+		FromCache:       fromCache,
+	}
 	requestInfo.SucceededRequests = 1
 
 	reportJSON(modelValue, modelName, w)
@@ -191,7 +196,7 @@ func runHTTPHandler() {
 	}
 
 	http.Handle("/train", http.HandlerFunc(h.handleTrainingRequest))
-	http.Handle("/apply", http.HandlerFunc(h.handleApplyRequest))
+	http.Handle("/calc", http.HandlerFunc(h.handleCalculationRequest))
 	http.Handle("/stats", http.HandlerFunc(h.handleStatsRequest))
 
 	port := ctx.Value("port")
