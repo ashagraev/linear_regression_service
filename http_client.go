@@ -44,34 +44,28 @@ func (rc *regressionClient) requestHTTPTraining(instances [][]float64) (string, 
 	return string(body), nil
 }
 
-func (rc *regressionClient) requestHTTPCalculation(arg float64) (string, error) {
-	url := fmt.Sprintf("%v/calc?model=%v&arg=%v", rc.serverPath, rc.modelName, arg)
+func requestHTTPMethod(url string, method string) (string, error) {
 	resp, err := http.Get(url)
 	if err != nil {
-		return "", fmt.Errorf("error processing /calc: %v", err)
+		return "", fmt.Errorf("error processing /%v: %v", method, err)
 	}
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return "", fmt.Errorf("can't load /calc answer: %v", err)
+		return "", fmt.Errorf("can't load /%v answer: %v", method, err)
 	}
 
 	return string(body), nil
 }
 
+func (rc *regressionClient) requestHTTPCalculation(arg float64) (string, error) {
+	url := fmt.Sprintf("%v/calc?model=%v&arg=%v", rc.serverPath, rc.modelName, arg)
+	return requestHTTPMethod(url, "calc")
+}
+
 func (rc *regressionClient) requestHTTPStats() (string, error) {
 	url := fmt.Sprintf("%v/stats", rc.serverPath)
-	resp, err := http.Get(url)
-	if err != nil {
-		return "", fmt.Errorf("error processing /stats: %v", err)
-	}
-
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return "", fmt.Errorf("can't load /stats answer: %v", err)
-	}
-
-	return string(body), nil
+	return requestHTTPMethod(url, "stats")
 }
 
 func runHTTPTraining() {
