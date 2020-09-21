@@ -20,6 +20,10 @@ func newCalculatingHTTPClient() *regressionClient {
 	return newRegressionClient(applyMode, httpMode)
 }
 
+func newStatsHTTPClient() *regressionClient {
+	return newRegressionClient(statsMode, httpMode)
+}
+
 func (rc *regressionClient) requestHTTPTraining(instances [][]float64) (string, error) {
 	data, err := json.Marshal(instances)
 	if err != nil {
@@ -50,6 +54,21 @@ func (rc *regressionClient) requestHTTPCalculation(arg float64) (string, error) 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return "", fmt.Errorf("can't load /apply answer: %v", err)
+	}
+
+	return string(body), nil
+}
+
+func (rc *regressionClient) requestHTTPStats() (string, error) {
+	url := fmt.Sprintf("%v/stats", rc.serverPath)
+	resp, err := http.Get(url)
+	if err != nil {
+		return "", fmt.Errorf("error processing /stats: %v", err)
+	}
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return "", fmt.Errorf("can't load /stats answer: %v", err)
 	}
 
 	return string(body), nil
@@ -89,4 +108,13 @@ func runHTTPApply() {
 
 		fmt.Println(result)
 	}
+}
+
+func runHTTPStats() {
+	client := newStatsHTTPClient()
+	stats, err := client.requestHTTPStats()
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(stats)
 }

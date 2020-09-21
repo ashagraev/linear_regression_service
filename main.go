@@ -23,6 +23,9 @@ func main() {
 	if os.Args[1] == clientModeArg(applyMode, httpMode) {
 		runHTTPApply()
 	}
+	if os.Args[1] == clientModeArg(statsMode, httpMode) {
+		runHTTPStats()
+	}
 
 	if os.Args[1] == handlerModeArg(grpcMode) {
 		runGRPCHandler()
