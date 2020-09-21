@@ -55,7 +55,7 @@ func createConnection(serverPath string) (*grpc.ClientConn, error) {
 	return grpc.Dial(serverPath, opts...)
 }
 
-func (rc *regressionClient) requestGRPCTraining(ctx context.Context, pool *pb.Pool) (string, error) {
+func (rc *regressionClient) requestGRPCTraining(ctx context.Context, instances []*pb.Instance) (string, error) {
 	conn, err := createConnection(rc.serverPath)
 	if err != nil {
 		return "", fmt.Errorf("cannot create grpc dial: %v", err)
@@ -65,8 +65,8 @@ func (rc *regressionClient) requestGRPCTraining(ctx context.Context, pool *pb.Po
 	client := pb.NewRegressionClient(conn)
 
 	result, err := client.Train(ctx, &pb.TrainingRequest{
-		Data:       pool,
-		StoreModel: true,
+		Instances:	instances,
+		StoreModel:	true,
 	})
 	if err != nil {
 		return "", fmt.Errorf("error processing training request: %v", err)
@@ -114,13 +114,13 @@ func (rc *regressionClient) requestGRPCStats(ctx context.Context) (string, error
 func runGRPCTrain() {
 	client := newTrainingGRPCClient()
 
-	pool, err := loadProtoPoolFromTSV(os.Stdin)
+	instances, err := loadProtoInstancesFromTSV(os.Stdin)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	ctx := context.Background()
-	result, err := client.requestGRPCTraining(ctx, pool)
+	result, err := client.requestGRPCTraining(ctx, instances)
 	if err != nil {
 		log.Fatal(err)
 	}

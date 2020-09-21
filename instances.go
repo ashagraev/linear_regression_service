@@ -43,8 +43,8 @@ func loadInstancesFromTSV(reader io.Reader) ([][]float64, error){
 	return instances, nil
 }
 
-func loadProtoPoolFromTSV(reader io.Reader) (*pb.Pool, error){
-	var pool pb.Pool
+func loadProtoInstancesFromTSV(reader io.Reader) ([]*pb.Instance, error){
+	var instances []*pb.Instance
 
 	lineIdx := 0
 	scanner := bufio.NewScanner(reader)
@@ -64,13 +64,13 @@ func loadProtoPoolFromTSV(reader io.Reader) (*pb.Pool, error){
 			return nil, fmt.Errorf("bad number of tokens: %v, line %v", len(instance), lineIdx)
 		}
 
-		pool.Instances = append(pool.Instances, &pb.Instance{Argument: instance[0], Target: instance[1], Weight: 1})
+		instances = append(instances, &pb.Instance{Argument: instance[0], Target: instance[1], Weight: 1})
 		lineIdx++
 	}
 
-	if len(pool.Instances) == 0 {
+	if len(instances) == 0 {
 		return nil, errors.New("no instances loaded")
 	}
 
-	return &pool, nil
+	return instances, nil
 }

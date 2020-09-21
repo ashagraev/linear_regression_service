@@ -4,14 +4,16 @@ package linear_regression;
 
 option go_package = "github.com/ashagraev/linear_regression";
 
+// Instance stores the information about one training example.
 message Instance {
+  // Argument stores the value of independent value.
   double Argument = 1;
-  double Target = 2;
-  double Weight = 3;
-}
 
-message Pool {
-  repeated Instance Instances = 1;
+  // Target stores the value of response value.
+  double Target = 2;
+
+  // Weight stores the importance of the training example.
+  double Weight = 3;
 }
 
 message SimpleRegressionModel {
@@ -42,13 +44,16 @@ message ModelValue {
 }
 
 message TrainingRequest {
-  Pool Data = 1;
+  repeated Instance Instances = 1;
   bool StoreModel = 2;
 }
 
 message CalculateRequest {
   string ModelName = 1;
   double Argument = 2;
+}
+
+message StatsRequest {
 }
 
 message ServerStats {
@@ -60,4 +65,5 @@ message ServerStats {
 service Regression {
   rpc Train(TrainingRequest) returns (TrainingResults) {}
   rpc Calculate(CalculateRequest) returns (ModelValue) {}
+  rpc Stats(StatsRequest) returns (ServerStats) {}
 }

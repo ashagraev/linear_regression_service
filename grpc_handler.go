@@ -45,7 +45,7 @@ func (h *grpcHandler) updateStatsLoop() {
 
 func (h *grpcHandler) Train(ctx context.Context, request *pb.TrainingRequest) (*pb.TrainingResults, error) {
 	var slr SimpleLinearRegression
-	for _, instance := range request.Data.Instances {
+	for _, instance := range request.Instances {
 		slr.AddWeightedInstance(instance.Argument, instance.Target, instance.Weight)
 	}
 
