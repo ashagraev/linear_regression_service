@@ -6,62 +6,67 @@ option go_package = "github.com/ashagraev/linear_regression";
 
 // Instance stores the information about one training example.
 message Instance {
-  // Argument stores the value of independent value.
-  double Argument = 1;
-
-  // Target stores the value of response value.
-  double Target = 2;
-
-  // Weight stores the importance of the training example.
-  double Weight = 3;
+  double argument = 1;
+  double target = 2;
+  double weight = 3;
 }
 
+// SimpleRegressionModel represents simple regression model with one linear coefficient and the intercept.
+// It has the following form: f(x) = a * x + b.
 message SimpleRegressionModel {
-  string Name = 1;
-  double Coefficient = 2;
-  double Intercept = 3;
+  string name = 1;
+  double coefficient = 2;
+  double intercept = 3;
 }
 
+// TrainingResults represents a simple linear regression model training results.
 message TrainingResults {
-  SimpleRegressionModel Model = 1;
-  double SumSquaredErrors = 2;
-  string Name = 3;
-  string Error = 4;
-  string CreationTime = 5;
+  SimpleRegressionModel model = 1;
+
+  double sum_squared_errors = 2;
+  string name = 3;
+  string error = 4;
+  string creation_time = 5;
 }
 
+// ModelValue represents a simple linear regression model calculation results.
 message ModelValue {
-  double Value = 1;
-  double Argument = 2;
+  double value = 1;
+  double argument = 2;
 
-  SimpleRegressionModel Model = 3;
+  SimpleRegressionModel model = 3;
 
-  bool FromCache = 4;
+  bool from_cache = 4;
 
-  string CalculationTime = 5;
+  string calculation_time = 5;
 
-  string Error = 6;
+  string error = 6;
 }
 
+// TrainingRequest stores data for a simple linear regression model training.
 message TrainingRequest {
-  repeated Instance Instances = 1;
-  bool StoreModel = 2;
+  repeated Instance instances = 1;
+  bool store_model = 2;
 }
 
+// TrainingRequest stores data for a simple linear regression model calculation.
 message CalculateRequest {
-  string ModelName = 1;
-  double Argument = 2;
+  string model_name = 1;
+  double argument = 2;
 }
 
+// StatsRequest is an argument for Stats() gRPC method
 message StatsRequest {
 }
 
+// ServerStats stores the gRPC handler's execution stats.
 message ServerStats {
-  int32 SucceededRequests = 1;
-  int32 TotalRequests = 2;
-  int32 TotalInstances = 3;
+  int32 succeeded_requests = 1;
+  int32 total_requests = 2;
+  int32 total_instances = 3;
 }
 
+// Regression service provides training and calculation API for simple linear regression models via gRPC.
 service Regression {
   rpc Train(TrainingRequest) returns (TrainingResults) {}
   rpc Calculate(CalculateRequest) returns (ModelValue) {}
