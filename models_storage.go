@@ -63,7 +63,7 @@ func (ms *modelsStorage) saveSLRModel(ctx context.Context, model *SimpleRegressi
 		return "", time.Time{}, fmt.Errorf("cannot save model to Spanner: %v", err)
 	}
 
-	return name, commitTS, err
+	return name, commitTS, nil
 }
 
 func (ms *modelsStorage) safeGetModelFromCache(name string) (*SimpleRegressionModel, bool) {
