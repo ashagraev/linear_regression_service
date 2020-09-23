@@ -41,11 +41,10 @@ func newModelsStorage(ctx context.Context) (*modelsStorage, error) {
 
 func randomModelName() (string, error) {
 	b := make([]byte, 10)
-	_, err := rand.Read(b)
-	if err != nil {
+	if _, err := rand.Read(b); err != nil {
 		return "", fmt.Errorf("cannot create random model name: %v", err)
 	}
-	return base64.URLEncoding.EncodeToString(b), err
+	return base64.URLEncoding.EncodeToString(b), nil
 }
 
 func (ms *modelsStorage) saveSLRModel(ctx context.Context, model *SimpleRegressionModel) (string, time.Time, error) {
