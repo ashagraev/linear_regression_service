@@ -55,7 +55,7 @@ message CalculateRequest {
   double argument = 2;
 }
 
-// StatsRequest is an argument for Stats() gRPC method
+// StatsRequest is an argument for Stats() gRPC method.
 message StatsRequest {
 }
 

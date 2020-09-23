@@ -1,6 +1,6 @@
 /*
 linear_regression_service is a demonstration program which runs http and gRPC services
-providing API for training simple regression models
+providing API for training simple regression models.
  */
 package main
 
