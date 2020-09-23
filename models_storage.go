@@ -56,7 +56,9 @@ func (ms *modelsStorage) saveSLRModel(ctx context.Context, model *SimpleRegressi
 	commitTS, err := ms.spannerClient.Apply(ctx, []*spanner.Mutation{
 		spanner.Insert("slr_models",
 			[]string{"name", "params", "creation_time"},
-			[]interface{}{name, model.ToFloatArray(), spanner.CommitTimestamp})})
+			[]interface{}{name, model.ToFloatArray(), spanner.CommitTimestamp},
+		),
+	})
 	if err != nil {
 		return "", time.Time{}, fmt.Errorf("cannot save model to Spanner: %v", err)
 	}
